@@ -1,0 +1,102 @@
+#!/bin/sh
+#
+# https://github.com/arp242/gogo-release
+
+set -euC
+
+# Valid combinations: https://golang.org/doc/install/source#environment
+matrix="
+darwin amd64
+dragonfly amd64
+freebsd amd64
+illumos amd64
+linux amd64
+netbsd amd64
+openbsd amd64
+solaris amd64
+windows amd64
+"
+
+# Program to run on the binary after build, usually to compress it.
+# "upx -qqq" is recommended for servers and other programs where an extra ~200ms
+# of startup time isn't a big deal. It's not recommended for CLI apps and the
+# like.
+#
+# gzip can be used to just compress the uploaded file.
+#post_build="upx -qqq"
+post_build="gzip -f"
+
+# Location to put the binaries. Everything in this directory will be uploaded,
+# so use an empty directory.
+tmp=$(mktemp -p "${TMPDIR:-/tmp}" -d gogo-release.XXXXXXXX)
+mkdir -p "$tmp"
+trap 'rm -rf "$tmp"' EXIT
+
+# Project name.
+name=$(basename "$(go list)")
+
+# GitHub repo, as "owner/name".
+repo=$(git config --get remote.origin.url | sed 's/\.git$//' | grep -Eo "[^:/]+/$name"'$')
+
+# Tag to create releases from
+if [ -n "${1:-}" ]; then
+	tag=$1
+	git tag | grep -q "^$tag$" || git tag "$tag"
+else
+	tag=$(git tag -l --points-at "$(git log -n1 --format='%H')")
+	if [ -z "$tag" ]; then
+		echo >&2 'Need to give a tag or have a tag on the current commit'
+		exit 1
+	fi
+fi
+
+IFS="
+"
+
+# Compile
+for arch in $matrix; do
+	export GOOS=${arch% *}
+	export GOARCH=${arch#* }
+	out="$tmp/$name-$tag-$GOOS-$GOARCH"
+	[ "$GOOS" = "windows" ] && out="$out.exe"
+	printf '\r%60s\rBuilding %s' ' ' "$out"
+
+	go build -o "$out"
+	if [ -n "${post_build:-}" ]; then
+		eval $post_build "$out" ||:
+	fi
+done
+
+# Upload
+if [ -z "${GITHUB_TOKEN:-}" ]; then
+	printf '\nGITHUB_TOKEN empty; skipping upload\n'
+	exit 0
+fi
+
+# It's required to create a release, and not just a tag.
+git push --tags
+release_id=$(curl --silent \
+	-H "Authorization: token $GITHUB_TOKEN" \
+	"https://api.github.com/repos/$repo/releases/tags/$tag" |
+		grep -m 1 "id.:" | grep -o '[0-9]\+' ||:)
+
+[ -z "$release_id" ] && release_id=$(curl --fail --silent -X POST \
+		-H 'Content-Type: application/json' \
+		-H "Authorization: token $GITHUB_TOKEN" \
+		-d '{"tag_name": "'"$tag"'"}' \
+		"https://api.github.com/repos/$repo/releases" |
+			grep -m 1 "id.:" | grep -o '[0-9]\+')
+
+for f in "$tmp"/*; do
+	printf "\r%60s\rUploading $f" ' '
+
+	curl --fail --silent -X POST \
+		-H "Authorization: token $GITHUB_TOKEN" \
+		-H "Content-Type: $(file -b --mime-type "$f")" \
+		--data-binary "@$f" \
+		"https://uploads.github.com/repos/$repo/releases/$release_id/assets?name=$(basename "$f")" \
+		> /dev/null || printf ' FAILED; most likely it already exists; delete it manually\n'
+done
+
+echo
+exit 0
