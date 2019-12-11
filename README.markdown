@@ -1,4 +1,4 @@
-gogo-release is a simple shell script to:
+gogo-release is a simple POSIX shell script to:
 
 1. Cross-compile binaries to various different targets.
 2. Optionally compress the binaries.
@@ -34,8 +34,8 @@ Notes:
 
 2. A previous version also included code for automatically creating a GitHub
    release and uploading it. I later removed this as I felt it was too complex
-   and uploading is just a few clicks,(I got carried away). You can still use
-   this code if you want:
+   and uploading is just a few clicks (I got carried away). You can still it in
+   your own shell script if you want:
    https://github.com/arp242/gogo-release/blob/5a2de679869746331b63f942dd381334f50d3dd3/gogo-release#L70
 
 [gor]: https://github.com/goreleaser/goreleaser
