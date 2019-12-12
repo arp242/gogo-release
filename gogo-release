@@ -36,7 +36,7 @@ mkdir -p "$tmp"
 name=$(basename "$(go list)")
 
 # Flags to pass to "go build".
-build_flags="-ldflags='-w -s'"
+build_flags="-trimpath -ldflags='-w -s'"
 
 tag=$(git tag -l --points-at "$(git log -n1 --format='%H')")
 if [ -z "$tag" ]; then
