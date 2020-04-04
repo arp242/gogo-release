@@ -37,14 +37,21 @@ mkdir -p "$tmp"
 # Project name.
 name=$(basename "$(go list)")
 
-# Flags to pass to "go build".
-build_flags="-trimpath -ldflags='-w -s'"
-
-tag=$(git tag -l --points-at "$(git log -n1 --format='%H')")
+tag=${1:-}
 if [ -z "$tag" ]; then
-	echo >&2 'Need to have a tag on the current commit'
-	exit 1
+	tag=$(git tag -l --points-at "$(git log -n1 --format='%H')")
+	if [ -z "$tag" ]; then
+		echo >&2 "Need to have a tag on the current commit or give the version as the first argument (i.e. ${0} v1.0.0)"
+		exit 1
+	fi
 fi
+
+# Flags to pass to "go build".
+build_flags="-trimpath -ldflags='-w -s -X main.version=$tag'"
+
+# Disable cgo by default to create static binaries; re-enable in local
+# .gogo-release if you don't want this.
+export CGO_ENABLED=0
 
 # Pick up configuration
 [ -f "./.gogo-release" ] && . ./.gogo-release

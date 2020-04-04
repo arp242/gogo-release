@@ -18,7 +18,19 @@ Usage:
 
 Notes:
 
-1. Cross-compiling code that uses cgo is tricky as cross-compiling C code is
+1. The current commit must have a tag, so if you want to build v1.2.0:
+
+       $ git checkout v1.2.0
+       $ gogo-release
+
+   You can also add a version as a commandline argument; this will only put the
+   version in the name, and *won't* check out the git commit:
+
+       $ gogo-release v1.2.0
+
+   This is mostly intended for testing.
+
+2. Cross-compiling code that uses cgo is tricky as cross-compiling C code is
    tricky:
 
    1. Make sure you have the required C compiler cross-build tools installed ;
@@ -28,14 +40,16 @@ Notes:
       `.gogo-release`.
    3. Make sure the right compiler is used by adding `CC=..` to the build
       matrix.
+   4. You're probably best off using an older libc version for best
+      compatability.
 
    Support is minimal at the moment; tools like [xgo][xgo] may offer a better
    experience if you want to cross-compile to many different platforms.
 
-2. A previous version also included code for automatically creating a GitHub
+3. A previous version also included code for automatically creating a GitHub
    release and uploading it. I later removed this as I felt it was too complex
-   and uploading is just a few clicks (I got carried away). You can still it in
-   your own shell script if you want:
+   and uploading is just a few clicks (I got carried away). You can still add it
+   in your own shell script if you want:
    https://github.com/arp242/gogo-release/blob/5a2de679869746331b63f942dd381334f50d3dd3/gogo-release#L70
 
 [gor]: https://github.com/goreleaser/goreleaser
