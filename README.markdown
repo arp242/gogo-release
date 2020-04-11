@@ -31,27 +31,31 @@ Notes:
    This is mostly intended for testing.
 
 2. Cross-compiling code that uses cgo is tricky as cross-compiling C code is
-   tricky:
+   tricky; I wrote a bit more about that over here: [Statically compiling Go
+   programs][static]. In brief:
 
-   1. Make sure you have the required C compiler cross-build tools installed ;
+   1. Make sure you have the required C compiler cross-build tools installed;
       you can usually install these from your distro's package manger (names
-      vary; searching for `cross` should work).
+      vary; searching for `-linux-` should work).
    2. Make sure `CGO_ENABLED=1` is set, e.g. by adding `export CGO_ENABLED=1` to
       `.gogo-release`.
    3. Make sure the right compiler is used by adding `CC=..` to the build
       matrix.
-   4. You're probably best off using an older libc version for best
-      compatability.
+   4. You probably want to add `-ldflags='-extldflags=-static'` to create
+      statically linked binaries. Otherwise, make sure to use an older libc
+      version for best compatability.
 
-   Support is minimal at the moment; tools like [xgo][xgo] may offer a better
-   experience if you want to cross-compile to many different platforms.
+   An alternative might be [xgo][xgo], which may be a bit easier to
+   cross-compile cgo code depending on what you want and personal preferences.
 
 3. A previous version also included code for automatically creating a GitHub
-   release and uploading it. I later removed this as I felt it was too complex
-   and uploading is just a few clicks (I got carried away). You can still add it
-   in your own shell script if you want:
+   release and uploading it. I later removed this as I felt it was a bit too
+   complex and *automagic*. Uploading is just a few clicks anyway, so it doesn't
+   really save that much effort (I got carried away). You can still add it in
+   your own shell script if you want:
    https://github.com/arp242/gogo-release/blob/5a2de679869746331b63f942dd381334f50d3dd3/gogo-release#L70
 
 [gor]: https://github.com/goreleaser/goreleaser
 [xgo]: https://github.com/karalabe/xgo
 [sqlite]: https://github.com/mattn/go-sqlite3/issues/384
+[static]: http://arp242.net/static-go.html
