@@ -48,11 +48,21 @@ Notes:
    An alternative might be [xgo][xgo], which may be a bit easier to
    cross-compile cgo code depending on what you want and personal preferences.
 
-3. A previous version also included code for automatically creating a GitHub
+3. Define a `gogo_before_exit` function in your `.gogo-release` to run something
+   after everything is done. Just add the lines to the script if you want to run
+   something before the building starts; for example:
+
+       start=$(date +%s)
+       gogo_before_exit() {
+           echo "Took $(( $(date +%s) - $start )) seconds"
+           ls -lh "$tmp" | awk '{print $5 " " $9}'
+       }
+
+4. A previous version also included code for automatically creating a GitHub
    release and uploading it. I later removed this as I felt it was a bit too
    complex and *automagic*. Uploading is just a few clicks anyway, so it doesn't
    really save that much effort (I got carried away). You can still add it in
-   your own shell script if you want:
+   `gogo_before_exit` if you want:
    https://github.com/arp242/gogo-release/blob/5a2de679869746331b63f942dd381334f50d3dd3/gogo-release#L70
 
 [gor]: https://github.com/goreleaser/goreleaser
