@@ -47,12 +47,12 @@ if [ -z "$tag" ]; then
 fi
 
 # Short commit hash and date.
-commit_info=$(git log -n1 --format='%h %cd' --date='format:%Y-%m-%d')
+commit_info=$(git log -n1 --format=' %h %cd' --date='format:%Y-%m-%d')
 
 # Flags to pass to "go build"; you can add a package name or build tags here;
 # for example in your local .gogo-release you can append to it like so:
 #   build_flags="$build_flags -tags mytag ./cmd/myapp"
-build_flags="-trimpath -ldflags '-w -s -X \"main.version=$tag $commit_info\"'"
+build_flags="-trimpath -ldflags '-w -s -X \"main.version=$tag$commit_info\"'"
 
 # Disable cgo by default to create static binaries; re-enable in local
 # .gogo-release if you don't want this.
