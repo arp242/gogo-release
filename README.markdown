@@ -5,7 +5,10 @@ gogo-release is a simple POSIX shell script to:
 
 It's the simpler and unix-beardy brother of [go-releaser][gor].
 
-Configure it by adding a `.gogo-release` file or just by editing the source.
+Configure it by just editing the source or adding a `.gogo-release` file; this
+is simply a shell script that's sourced and can be used to set/override some
+variables. [Here is an example][ex]. See the `gogo-release` script for a list of
+things you can set with documentation.
 
 Usage:
 
@@ -61,10 +64,12 @@ Notes:
 4. A previous version also included code for automatically creating a GitHub
    release and uploading it. I later removed this as I felt it was a bit too
    complex and *automagic*. Uploading is just a few clicks anyway, so it doesn't
-   really save that much effort (I got carried away). You can still add it in
-   `gogo_before_exit` if you want:
-   https://github.com/arp242/gogo-release/blob/5a2de679869746331b63f942dd381334f50d3dd3/gogo-release#L70
+   really save that much effort (I got carried away). [You can still add it in
+   `gogo_before_exit` if you want][gh].
 
+
+[ex]: https://github.com/zgoat/goatcounter/blob/master/.gogo-release
+[gh]: https://github.com/arp242/gogo-release/blob/5a2de679869746331b63f942dd381334f50d3dd3/gogo-release#L70
 [gor]: https://github.com/goreleaser/goreleaser
 [xgo]: https://github.com/karalabe/xgo
 [sqlite]: https://github.com/mattn/go-sqlite3/issues/384
