@@ -32,8 +32,13 @@ post_build="gzip -f"
 tmp=./dist
 mkdir -p "$tmp"
 
-# Project name.
-name=$(basename "$(go list)")
+# Project package and name.
+pkg="$(go list)"
+if echo "$pkg" | grep -Eq '/v[0-9]+'; then  # Remove /v2, /v3, etc. at the end.
+	name=$(basename "$(dirname "$pkg")")
+else
+	name=$(basename "$pkg")
+fi
 
 # Get the version from commandline or git tag.
 tag=${1:-}
