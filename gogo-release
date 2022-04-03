@@ -4,7 +4,7 @@
 
 set -euC
 
-# Valid combinations: https://golang.org/doc/install/source#environment
+# Valid combinations: "go tool dist list"
 # Everything from the third argument on are set as env vars; for example:
 #   linux amd64 CC=foo CXX=bar
 matrix="
@@ -57,6 +57,9 @@ commit_info=$(git log -n1 --format=' %h %cd' --date='format:%Y-%m-%d')
 # for example in your local .gogo-release you can append to it like so:
 #   build_flags="$build_flags -tags mytag ./cmd/myapp"
 build_flags="-trimpath -ldflags '-w -s -X \"main.version=$tag$commit_info\"'"
+
+# Automatically use ./cmd/pkgname if it exists.
+[ -d "./cmd/$name" ] && build_flags="$build_flags ./cmd/$name"
 
 # Disable cgo by default to create static binaries; re-enable in local
 # .gogo-release if you don't want this.
