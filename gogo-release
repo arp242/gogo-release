@@ -30,7 +30,6 @@ post_build="gzip -f"
 
 # Location to put the binaries.
 tmp=./dist
-mkdir -p "$tmp"
 
 # Project package and name.
 pkg="$(go list)"
@@ -68,9 +67,11 @@ export CGO_ENABLED=0
 # Pick up configuration to override any of the above.
 [ -f "./.gogo-release" ] && . ./.gogo-release
 
+mkdir -p "$tmp"
+
 # Compile
-IFS="
-"
+IFS='
+'
 for arch in $matrix; do
 	(
 		export GOOS=${arch%% *}
